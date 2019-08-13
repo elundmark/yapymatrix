@@ -1,0 +1,390 @@
+#!/usr/bin/env python3
+"""
+Name:               YAPYMatrix - Yet Another Python Matrix
+Desc:               Highly customizable Matrix Code Emulator written in Python
+Usage:              $ YAPYMatrix [ options ]
+Date:               2019-08-13
+By:                 elundmark at posteo.se
+Support/Bugtracker: https://github.com/elundmark
+License:            MIT; https://www.opensource.org/licenses/MIT
+Thanks:             Indian Pythonista <https://www.youtube.com/channel/UCkUq-s6z57uJFUFBvZIVTyg>
+"""
+
+import curses
+from time import sleep
+import signal
+import sys
+import random
+
+program_title = "YAPYMatrix"
+program_version = "0.1.0"
+website_url = "https://github.com/elundmark"
+
+def generate_help(settings):
+    """Show help text"""
+    print(program_title + " v" + program_version)
+    print("Available options:\n")
+    for k in settings:
+        print("'" + k + "'", "is set to", settings[k])
+    print("\nFor more information visit:\n", website_url)
+
+def parse_arguments(args, o):
+    """Parse user arguments and hardcoded values in the options dictionary"""
+    show_help = False
+    halt_after_parsing = False
+    # Must be sorted first
+    args.sort()
+    for a in args:
+        # Black Background?
+        if a == "--force-black":
+            o["force-black"] = True
+        # Speed option
+        elif a.startswith("--fps="):
+            o["fps"] = float(a.split("--fps=")[1])
+        # Show help text
+        elif a == "--help":
+            show_help = True
+        # Include how many spaces
+        elif a.startswith("--include-spaces="):
+            o["include-spaces"] = int(a.split("--include-spaces=")[1])
+        # No colors
+        elif a == "--no-colors":
+            o["no-colors"] = True
+        # Keep generated letters onscreen for a maximum of N reflows
+        elif a.startswith("--onscreen-letters-timer"):
+            o["onscreen-letters-timer"] = int(a.split("--onscreen-letters-timer=")[1])
+        # Debug options
+        elif a == "--show-options":
+            halt_after_parsing = True
+       # Abs. height of generated series of spaces
+        elif a.startswith("--spaces-abs-max-height="):
+            o["spaces-abs-max-height"] = int(a.split("--spaces-abs-max-height=")[1])
+       # Rel. height of generated series of spaces
+        elif a.startswith("--spaces-rel-max-height="):
+            o["spaces-rel-max-height"] = float(a.split("--spaces-rel-max-height=")[1])
+        # Skip every other column - looks great on big wide terminals
+        elif a == "--sparse-columns":
+            o["sparse-columns"] = True
+       # Abs. height of generated series of strings
+        elif a.startswith("--strings-abs-max-height="):
+            o["strings-abs-max-height"] = int(a.split("--strings-abs-max-height=")[1])
+       # Rel. height of generated series of strings
+        elif a.startswith("--strings-rel-max-height="):
+            o["strings-rel-max-height"] = float(a.split("--strings-rel-max-height=")[1])
+        # TV effect
+        elif a == "--tv-intro":
+            o["tv-intro"] = True
+        # Skip every three columns
+        elif a == "--very-sparse-columns":
+            o["very-sparse-columns"] = True
+        # default
+        else:
+            print("Invalid option:", a)
+            sys.exit(1)
+    if show_help:
+        generate_help(o)
+        sys.exit(0)
+    elif halt_after_parsing:
+        print("$", program_title)
+        print("Arguments:", args)
+        print("Generated options:", o)
+        sys.exit(0)
+    # Set the magic timeout value
+    o["fps"] = 1 / o["fps"]
+    return o
+
+opts = parse_arguments(sys.argv[1:], {
+    "show-options":           False,
+    "force-black":            False,
+    "no-colors":              False,
+    "tv-intro":               False,
+    "sparse-columns":         False,
+    "very-sparse-columns":    False,
+    "spaces-abs-max-height":  35,
+    "strings-abs-max-height": 25,
+    "spaces-rel-max-height":  0.8,
+    "strings-rel-max-height": 0.8,
+    "include-spaces":         2,
+    "onscreen-letters-timer": 4,
+    "fps":                    12,
+})
+
+# set terminal title
+py_dot_version=float(sys.version.split()[0][:3])
+if py_dot_version >= 3.3:
+    print('\33]0;' + program_title + '\a', end='', flush=True)
+else:
+    print('\33]0;' + program_title + '\a', end='')
+    sys.stdout.flush()
+
+# Vertical Cache
+# The bigger value this is, the longer time passes between
+# the cached letters repeats, but it requires more ram
+# and will require more time to calculate on startup
+# Note: Even at only 2 the cache recycle is very hard to dissern
+# Max recommended    25
+# Min recommended    2
+# Default            7
+vertical_cache_int = 7
+
+def main(term):
+    """main function - this is inside a try-except and will reset the terminal on endwin()"""
+    # hide cursor
+    curses.curs_set(0)
+    # leave cursor where it is on update
+    term.leaveok(1)
+    # clear (any) previous paints
+    term.clear()
+    # get the properties of the term
+    (height, width) = term.getmaxyx()
+    # Useful for debugging values
+    debug = list()
+
+    # Setup colors
+    use_colors = False
+    if not opts["no-colors"] and curses.has_colors():
+        use_colors = True
+
+    if use_colors:
+        # Use default colors
+        curses.use_default_colors()
+        if opts["force-black"]:
+            # Black bkg
+            curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
+            curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        else:
+            # Transparent bkg
+            curses.init_pair(1, curses.COLOR_GREEN, -1)
+            curses.init_pair(2, curses.COLOR_WHITE, -1)
+        clr_1 = curses.color_pair(1)
+        clr_2 = curses.color_pair(2)
+        if opts["force-black"]:
+            # Set window bkg-color
+            curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK)
+            term.bkgd(curses.color_pair(3))
+
+
+    def signal_handler(sig, frame, msg=None):
+        """do this instead of traceback on ctrl+c"""
+        curses.endwin()
+        if msg is not None:
+            import pprint
+            pp = pprint.PrettyPrinter(indent=4)
+            pp.pprint(msg)
+        elif len(debug) > 0:
+            import pprint
+            pp = pprint.PrettyPrinter(indent=4)
+            pp.pprint(debug)
+        # We assume nothing went wrong and exit with '0'
+        sys.exit(0)
+
+    # trap exit signals and exit gracefully using the signal_handler fn
+    signal.signal(signal.SIGHUP, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGQUIT, signal_handler)
+
+    # Exit if the terminal is too small
+    if height < 8 or width < 8:
+        term.addstr("Too small")
+        term.refresh()
+        sleep(3)
+        signal_handler(2, None, "The terminal is too small - A minimum of 8x8 is required")
+        return False
+
+    def char_range(c1, c2):
+        """Generates the characters from `c1` to `c2`, inclusive."""
+        for c in range(ord(c1), ord(c2)+1):
+            yield chr(c)
+
+    chars = list()
+
+    # Generate unicode characters for use with the 'Matrix Code NFI' Font
+    for c in char_range("!", "?"):
+        chars.append(c)
+    for c in char_range("[", "_"):
+        chars.append(c)
+    for c in char_range("{", "~"):
+        chars.append(c)
+    for c in char_range("A", "z"):
+        chars.append(c)
+
+    for i in range(0, len(chars) - 1):
+        # this char is in the range but is not in the font
+        if chars[i] == "`":
+            chars[i] = "p"
+    if isinstance(opts["include-spaces"], int):
+        opts["include-spaces"] = max(0, opts["include-spaces"])
+        for i in range(0, opts["include-spaces"]):
+            chars.append(" ")
+
+    def get_rand_chars(size):
+        """Generate a random copy of chars"""
+        chars_copy = list()
+        for i in range(0, size//len(chars)):
+            chars_copy += chars[:]
+        random.shuffle(chars_copy)
+        return chars_copy
+
+    # Pre-calculating random stuff will save tons of cpu time
+    rand_chars = [ tmp for tmp in get_rand_chars(width * height * vertical_cache_int) ]
+    rand_char_i = len(rand_chars) - 1
+    max_prev_i = opts["onscreen-letters-timer"]
+    rand_prev_ints = [ random.randint(0, max_prev_i + 1) for tmp in range(0, height) ]
+    rand_prev_size = len(rand_prev_ints)
+    rand_prev_i = 0
+
+    def gen_rand_string_column(height):
+        """Generate a column of letters"""
+        min_height = 5
+        max_height = min(opts["strings-abs-max-height"], int(height * opts["strings-rel-max-height"]))
+        if max_height < min_height:
+            max_height = min_height
+        n = random.randint(min_height, max_height)
+        l = list()
+        for i in range(0, n):
+            if i in (n - 1, n - 2):
+                # last two letters, dimmed
+                t = (2, (clr_1 | curses.A_DIM) if use_colors else None)
+            elif i == 0:
+                # tracer - last letter
+                t = (0, (clr_2 | curses.A_BOLD) if use_colors else None)
+            elif i == 1:
+                # second letter is always bold
+                t = (0, (clr_1 | curses.A_BOLD) if use_colors else None)
+            else:
+                # random bold
+                if random.randint(0, 8) == 0:
+                    t = (1, (clr_1 | curses.A_BOLD) if use_colors else None)
+                else:
+                    t = (1, clr_1 if use_colors else None)
+            l.append( t )
+        return l
+
+    def gen_rand_spaces_column(height):
+        """Generate a column of spaces"""
+        min_height = 5
+        max_height = min(opts["spaces-abs-max-height"], int(height * opts["spaces-rel-max-height"]))
+        if max_height < min_height:
+            max_height = min_height
+        n = random.randint(min_height, max_height)
+        l = [ (-1, None) for i in range(0, n) ]
+        return l
+
+    # We pre-calculate the entire matrix layout here, all except the letters
+    matrix = [ [] for tmp in range(0, width) ]
+
+    for x in range(0, width):
+        while len(matrix[x]) < height * vertical_cache_int:
+            rand_strings = gen_rand_string_column(height)
+            rand_spaces = gen_rand_spaces_column(height)
+            if opts["sparse-columns"]:
+                if x % 2 == 0:
+                    if opts["tv-intro"]:
+                        matrix[x] += rand_strings
+                        matrix[x] += rand_spaces
+                    else:
+                        matrix[x] += rand_spaces
+                        matrix[x] += rand_strings
+                else:
+                    matrix[x] += rand_spaces
+            elif opts["very-sparse-columns"]:
+                if x % 3 == 0:
+                    if opts["tv-intro"]:
+                        matrix[x] += rand_strings
+                        matrix[x] += rand_spaces
+                    else:
+                        matrix[x] += rand_spaces
+                        matrix[x] += rand_strings
+                else:
+                    matrix[x] += rand_spaces
+            else:
+                if opts["tv-intro"]:
+                    matrix[x] += rand_strings
+                    matrix[x] += rand_spaces
+                else:
+                    matrix[x] += rand_spaces
+                    matrix[x] += rand_strings
+
+    # Keep track of matrix indexes, and previous characters inserted
+    matrix_ii = [ { "pos": 0, "size": len(tmp), "prev": [""]*height } for tmp in matrix ]
+    corner_x = width - 1
+    corner_y = height - 1
+    # This is to make the rain fall from the top and not explode on screen
+    initial_whitespace_skip = (width * height) - 1
+
+    while True:
+        # Dont worry - This is a very cheap cpu process
+        check_size = term.getmaxyx()
+        if check_size[0] != height or check_size[1] != width:
+            # the terminal window has changed size
+            return main(term)
+
+        x_pos = 0
+
+        while x_pos < width:
+
+            get_prev_int = rand_prev_ints[rand_prev_i]
+            rand_prev_i += 1
+            if rand_prev_i == rand_prev_size:
+                rand_prev_i = 0
+            y_pos = 0
+
+            while y_pos < height:
+
+                # bottom right corner can not be written to
+                if y_pos == corner_y and x_pos == corner_x:
+                    y_pos += 1
+                    continue
+
+                cell = matrix[x_pos][matrix_ii[x_pos]["pos"] - y_pos]
+
+                if cell[0] >= 0:
+                    letter = ""
+                    if get_prev_int != max_prev_i and y_pos < corner_y:
+                        letter = matrix_ii[x_pos]["prev"][y_pos]
+                        if letter == " ":
+                            letter = ""
+
+                    if letter == "":
+                        letter = rand_chars[rand_char_i]
+                        rand_char_i -= 1
+                        if rand_char_i < 0:
+                            rand_char_i = len(rand_chars) - 1
+                else:
+                    # space
+                    letter = " "
+
+                if cell[1] is None or letter == " ":
+                    term.addch(y_pos, x_pos, letter)
+                else:
+                    term.attron(cell[1])
+                    term.addch(y_pos, x_pos, letter)
+                    term.attroff(cell[1])
+
+                if get_prev_int != max_prev_i and letter != " ":
+                    matrix_ii[x_pos]["prev"][y_pos] = letter
+                else:
+                    matrix_ii[x_pos]["prev"][y_pos] = ""
+
+                if initial_whitespace_skip != 0 and (matrix_ii[x_pos]["pos"] - y_pos) <= 0:
+                    initial_whitespace_skip -= 1
+                    break
+
+                get_prev_int += 1
+                if get_prev_int == max_prev_i + 1:
+                    get_prev_int = 0
+
+                y_pos += 1
+
+            # "Move" to new line in matrix
+            matrix_ii[x_pos]["pos"] += 1
+            if matrix_ii[x_pos]["pos"] == matrix_ii[x_pos]["size"]:
+                matrix_ii[x_pos]["pos"] = 0
+
+            x_pos += 1
+
+        term.refresh()
+        sleep(opts["fps"])
+
+curses.wrapper(main)
