@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Name:               YAPYMatrix - Yet Another Python Matrix
-Desc:               Highly customizable Matrix Code Emulator written in Python
+Desc:               Highly customizable Matrix Code Emulator written in python
 Usage:              $ ./yapymatrix [ options ]
-Date:               2019-08-14
+Date:               2019-08-15
 By:                 elundmark@posteo.se
 Support/Bugtracker: https://github.com/elundmark/yapymatrix
 License:            MIT; https://www.opensource.org/licenses/MIT
@@ -48,22 +48,22 @@ def parse_arguments(args, o):
             show_help = True
         # Include how many spaces
         elif a.startswith("--include-spaces="):
-            o["include-spaces"] = int(a.split("--include-spaces=")[1])
+            o["include-spaces"] = int(float(a.split("--include-spaces=")[1]))
         # No colors
         elif a == "--no-colors":
             o["no-colors"] = True
         # Keep generated letters onscreen for a maximum of N reflows
         elif a.startswith("--onscreen-letters-timer"):
-            o["onscreen-letters-timer"] = int(a.split("--onscreen-letters-timer=")[1])
+            o["onscreen-letters-timer"] = int(float(a.split("--onscreen-letters-timer=")[1]))
         # Debug options
         elif a == "--show-options":
             halt_after_parsing = True
         # Abs. max height of generated series of spaces
         elif a.startswith("--spaces-abs-max-height="):
-            o["spaces-abs-max-height"] = int(a.split("--spaces-abs-max-height=")[1])
+            o["spaces-abs-max-height"] = int(float(a.split("--spaces-abs-max-height=")[1]))
         # Abs. min height of generated series of spaces
         elif a.startswith("--spaces-abs-min-height="):
-            o["spaces-abs-min-height"] = int(a.split("--spaces-abs-min-height=")[1])
+            o["spaces-abs-min-height"] = int(float(a.split("--spaces-abs-min-height=")[1]))
        # Rel. max height of generated series of spaces
         elif a.startswith("--spaces-rel-max-height="):
             o["spaces-rel-max-height"] = float(a.split("--spaces-rel-max-height=")[1])
@@ -72,7 +72,7 @@ def parse_arguments(args, o):
             o["sparse-columns"] = True
        # Abs. max height of generated series of strings
         elif a.startswith("--strings-abs-max-height="):
-            o["strings-abs-max-height"] = int(a.split("--strings-abs-max-height=")[1])
+            o["strings-abs-max-height"] = int(float(a.split("--strings-abs-max-height=")[1]))
        # Rel. max height of generated series of strings
         elif a.startswith("--strings-rel-max-height="):
             o["strings-rel-max-height"] = float(a.split("--strings-rel-max-height=")[1])
@@ -113,7 +113,7 @@ opts = parse_arguments(sys.argv[1:], {
     "spaces-rel-max-height":  0.8,   # FLOAT
     "strings-abs-min-height": 5,     # INT   (Must be >= 5)
     "strings-abs-max-height": 25,    # INT
-    "strings-rel-max-height": 0.8,   # FLOAT (Set to 0 to disable)
+    "strings-rel-max-height": 0.6,   # FLOAT (Set to 0 to disable)
     "include-spaces":         3,     # INT
     "onscreen-letters-timer": 4,     # INT
     "fps":                    21,    # INT   (60+ will skip sleep delay)
