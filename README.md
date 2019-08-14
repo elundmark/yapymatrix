@@ -35,11 +35,12 @@ Better documentation will be added later.
 --help                          # Show all options
 ```
 
-## Required / Tested on
+## Required / Recommended / Tested on
 
 * Linux
 * Best used with [Matrix Code NFI](https://www.dafont.com/matrix-code-nfi.font)
-* Python >= 3.7.3
+* Best used with a 16 color terminal.
+* Tested in Python >= 3.7.3
 * Loaded libraries:
 	- curses
 	- time
