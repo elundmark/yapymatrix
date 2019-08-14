@@ -3,6 +3,7 @@
 ![Preview](https://i.imgur.com/fs7BZOm.png)
 
 [https://giphy.com/gifs/matrix-lrIeTla9JsxCwn9QX1](https://giphy.com/gifs/matrix-lrIeTla9JsxCwn9QX1)
+
 Direct GIF link: [https://media.giphy.com/media/lrIeTla9JsxCwn9QX1/giphy.gif](https://media.giphy.com/media/lrIeTla9JsxCwn9QX1/giphy.gif)
 
 ## Why
@@ -55,6 +56,6 @@ chmod u+x yapymatrix
 
 To stop the program, use `Ctrl + C`
 
-## Performace
+## Performance
 
 It's not bad. On a 1920x1080 fullscreen terminal (213 cols x 57 lines) and the default speed, my 2015 laptop i5 processor (4 threads) uses about 22%. This is heavier than say [cmatrix](https://github.com/abishekvashok/cmatrix).
