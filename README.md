@@ -1,5 +1,7 @@
 # Yet Anoter Python Matrix
 
+![Preview](https://i.imgur.com/fs7BZOm.png)
+
 [https://giphy.com/gifs/matrix-lrIeTla9JsxCwn9QX1](https://giphy.com/gifs/matrix-lrIeTla9JsxCwn9QX1)
 
 ## Why
