@@ -18,7 +18,7 @@ import random
 
 app = {
     "program_title":   "YAPYMatrix",
-    "program_version": "0.1.0",
+    "program_version": "0.2.0",
     "website_url":     "https://github.com/elundmark/yapymatrix",
 }
 
