@@ -1,6 +1,6 @@
 # Yet Anoter Python Matrix
 
-![Preview](https://i.imgur.com/fs7BZOm.png)
+![Preview](https://media.giphy.com/media/lrIeTla9JsxCwn9QX1/giphy.gif)
 
 [https://giphy.com/gifs/matrix-lrIeTla9JsxCwn9QX1](https://giphy.com/gifs/matrix-lrIeTla9JsxCwn9QX1)
 
