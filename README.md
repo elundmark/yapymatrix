@@ -18,7 +18,7 @@ Here's the current list of options.
 Better documentation will be added later.
 
 ```
---fps                           # Default: 12
+--fps=INT                       # Default: 21
 --force-black                   # Default: False
 --no-colors                     # Default: False
 --tv-intro                      # Default: False
@@ -28,7 +28,7 @@ Better documentation will be added later.
 --strings-abs-max-height=INT    # Default: 25
 --spaces-rel-max-height=FLOAT   # Default: 0.8
 --strings-rel-max-height=FLOAT  # Default: 0.8
---include-spaces=INT            # Default: 2
+--include-spaces=INT            # Default: 3
 --onscreen-letters-timer=INT    # Default: 4
 --show-options                  # Useful for debugging
 --help                          # Show all options
