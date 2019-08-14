@@ -49,12 +49,18 @@ def parse_arguments(args, o):
         # Include how many spaces
         elif a.startswith("--include-spaces="):
             o["include-spaces"] = int(float(a.split("--include-spaces=")[1]))
+        # Turn off bold characters
+        elif a == "--no-bold-characters":
+            o["no-bold-characters"] = True
         # No colors
         elif a == "--no-colors":
             o["no-colors"] = True
         # Keep generated letters onscreen for a maximum of N reflows
         elif a.startswith("--onscreen-letters-timer"):
             o["onscreen-letters-timer"] = int(float(a.split("--onscreen-letters-timer=")[1]))
+        # Make 1/N by random a BOLD character
+        elif a.startswith("--random-bold"):
+            o["random-bold"] = int(float(a.split("--random-bold=")[1]))
         # Debug options
         elif a == "--show-options":
             halt_after_parsing = True
@@ -115,6 +121,8 @@ opts = parse_arguments(sys.argv[1:], {
     "strings-abs-max-height": 25,    # INT
     "strings-rel-max-height": 0.6,   # FLOAT (Set to 0 to disable)
     "include-spaces":         3,     # INT
+    "no-bold-characters":     False, # BOOL
+    "random-bold":            8,     # INT
     "onscreen-letters-timer": 4,     # INT
     "fps":                    21,    # INT   (60+ will skip sleep delay)
 })
@@ -145,6 +153,8 @@ def main(term):
     term.leaveok(1)
     # clear (any) previous paints
     term.clear()
+    # Use default colors
+    curses.use_default_colors()
     # get the properties of the term
     (height, width) = term.getmaxyx()
     # Useful for debugging values
@@ -156,8 +166,6 @@ def main(term):
         opts["use-colors"] = True
 
     if opts["use-colors"]:
-        # Use default colors
-        curses.use_default_colors()
         if opts["force-black"]:
             # Black bkg
             curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
@@ -264,20 +272,24 @@ def main(term):
             max_height = min_height
         n = random.randint(min_height, max_height)
         l = list()
+        bold_int = curses.A_BOLD if not opts["no-bold-characters"] else 0
         for i in range(0, n):
-            if i in (n - 1, n - 2):
-                # last two letters, dimmed
+            if i == n - 1:
+                # last letter, dimmed
                 t = (2, (clr_1 | curses.A_DIM) if opts["use-colors"] else None)
+            elif i == n - 2:
+                # next-to-last letter, dimmed and bold
+                t = (2, (clr_1 | curses.A_DIM | bold_int) if opts["use-colors"] else None)
             elif i == 0:
                 # tracer - last letter
-                t = (0, (clr_2 | curses.A_BOLD) if opts["use-colors"] else None)
+                t = (0, (clr_2 | bold_int) if opts["use-colors"] else None)
             elif i == 1:
                 # second letter is always bold
-                t = (0, (clr_1 | curses.A_BOLD) if opts["use-colors"] else None)
+                t = (0, (clr_1 | bold_int) if opts["use-colors"] else None)
             else:
-                # random bold
-                if random.randint(0, 8) == 0:
-                    t = (1, (clr_1 | curses.A_BOLD) if opts["use-colors"] else None)
+                # random bold - but never for the last char
+                if random.randint(0, opts["random-bold"]) == 0 and i != n - 1:
+                    t = (1, (clr_1 | bold_int) if opts["use-colors"] else None)
                 else:
                     t = (1, clr_1 if opts["use-colors"] else None)
             l.append( t )

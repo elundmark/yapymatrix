@@ -23,6 +23,8 @@ $ yapymatrix --fps=21 --include-spaces=7 --very-sparse-columns
 | --fps=N                        |  integer  |  21      |                   |
 | --force-black                  |  boolean  |  False   |                   |
 | --no-colors                    |  boolean  |  False   |                   |
+| --random-bold                  |  integer  |  8       |                   |
+| --no-bold-characters           |  boolean  |  False   |                   |
 | --tv-intro                     |  boolean  |  False   |                   |
 | --sparse-columns               |  boolean  |  False   |                   |
 | --very-sparse-columns          |  boolean  |  False   |                   |
@@ -34,8 +36,8 @@ $ yapymatrix --fps=21 --include-spaces=7 --very-sparse-columns
 | --strings-rel-max-height       |  float    |  0.6     |                   |
 | --include-spaces=N             |  integer  |  3       |                   |
 | --onscreen-letters-timer=N     |  integer  |  4       |                   |
-| --show-options                 |  integer  |          |  Debugging tool   |
-| --help                         |  integer  |          |  Show all options |
+| --show-options                 |  boolean  |          |  Debugging tool   |
+| --help                         |  boolean  |          |  Show all options |
 
 ### `--fps=N` _int_
 
@@ -52,6 +54,18 @@ _Default: False_
 ### `--no-colors` _boolean_
 
 Do not use any colors. Speeds up things quite a bit, so think of using this if you are using something like `cool-retro-term`.
+
+_Default: False_
+
+### `--random-bold=N` _integer_
+
+Make characters bold by a random chanse of 1 in N. Making this `0` will _not_ turn off bold characters completely.
+
+_Default: 8_
+
+### `--no-bold-characters` _boolean_
+
+Turn off all use of bold characters.
 
 _Default: False_
 
