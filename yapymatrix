@@ -104,9 +104,9 @@ opts = parse_arguments(sys.argv[1:], {
     "strings-abs-max-height": 25,
     "spaces-rel-max-height":  0.8,
     "strings-rel-max-height": 0.8,
-    "include-spaces":         2,
+    "include-spaces":         3,
     "onscreen-letters-timer": 4,
-    "fps":                    12,
+    "fps":                    21,
 })
 
 # set terminal title
