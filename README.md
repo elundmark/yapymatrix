@@ -1,8 +1,9 @@
 # Yet Anoter Python Matrix
 
-![Preview](https://media.giphy.com/media/lrIeTla9JsxCwn9QX1/giphy.gif)
+![Preview](https://i.imgur.com/fs7BZOm.png)
 
 [https://giphy.com/gifs/matrix-lrIeTla9JsxCwn9QX1](https://giphy.com/gifs/matrix-lrIeTla9JsxCwn9QX1)
+Direct GIF link: [https://media.giphy.com/media/lrIeTla9JsxCwn9QX1/giphy.gif](https://media.giphy.com/media/lrIeTla9JsxCwn9QX1/giphy.gif)
 
 ## Why
 
