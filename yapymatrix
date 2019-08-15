@@ -28,7 +28,7 @@ def generate_help(settings):
     print("Available options:\n")
     for k in settings:
         print("'" + k + "'", "is set to", settings[k])
-    print("\nFor more information visit:\n", ["website_url"])
+    print("\nFor more information visit:\n", app["website_url"])
 
 def parse_arguments(args, o):
     """Parse user arguments and hardcoded values in the options dictionary"""
