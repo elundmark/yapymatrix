@@ -1,4 +1,4 @@
-# Yet Anoter Python Matrix
+# Yet Another Python Matrix
 
 [![Preview](https://i.imgur.com/mLwIpXP.png)](https://i.imgur.com/LgHiLiA.png)
 
@@ -6,107 +6,11 @@
 
 ## Why
 
-Yes, it's yet another matrix code generator. [Cmatrix](https://github.com/abishekvashok/cmatrix) is one of my favorite programs, but after a few days learning Python I thought to myself, "Hey I could do this myself, maybe better, the right way". And I think I did okey.
+Well, first of all, [The Matrix](https://www.imdb.com/title/tt0133093/) is the best Sci-Fi movie ever, and the green code rain alone inspired me like few other things ever have.
+
+Yes, it's yet another matrix code generator. [Cmatrix](https://github.com/abishekvashok/cmatrix) is one of my favorite programs, but after a few days learning Python I thought to myself, __"Hey I could do this myself, maybe better, the right way"__. And I think I did okey.
 
 I've gone back to the source material, and tried to really figure out how to make it look like the original. The beautiful thing is, if you don't agree with the result, you can change it to your own liking! :-)
-
-## Options
-
-Here's the current list of options. Change them by passing them one after each other as arguments:
-
-```
-$ yapymatrix --fps=21 --include-spaces=7 --very-sparse-columns
-```
-
-| Option                         |  Type     |  Default |  Comment          |
-|--------------------------------|:---------:|:--------:|:-----------------:|
-| --fps=N                        |  integer  |  21      |                   |
-| --force-black                  |  boolean  |  False   |                   |
-| --no-colors                    |  boolean  |  False   |                   |
-| --random-bold                  |  integer  |  8       |                   |
-| --no-bold-characters           |  boolean  |  False   |                   |
-| --tv-intro                     |  boolean  |  False   |                   |
-| --sparse-columns               |  boolean  |  False   |                   |
-| --very-sparse-columns          |  boolean  |  False   |                   |
-| --spaces-abs-min-height=N      |  integer  |  5       |                   |
-| --spaces-abs-max-height=N      |  integer  |  35      |                   |
-| --spaces-rel-max-height        |  float    |  0.8     |                   |
-| --strings-abs-max-height=N     |  integer  |  25      |                   |
-| --strings-abs-min-height=N     |  integer  |  5       |                   |
-| --strings-rel-max-height       |  float    |  0.6     |                   |
-| --include-spaces=N             |  integer  |  3       |                   |
-| --onscreen-letters-timer=N     |  integer  |  4       |                   |
-| --show-options                 |  boolean  |          |  Debugging tool   |
-| --help                         |  boolean  |          |  Show all options |
-
-### `--fps=N` _int_
-
-Frames per second. Any integer __or float__ can be passed, it will then be calculated as `1 / fps` and used as seconds to `sleep` between reflows. If a value over `60` is passed, `sleep` will be omitted.
-
-_Default: 21_
-
-### `--force-black` _boolean_
-
-Color all backgrounds black. Normally your terminals default color-scheme will be used.
-
-_Default: False_
-
-### `--no-colors` _boolean_
-
-Do not use any colors. Speeds up things quite a bit, so think of using this if you are using something like `cool-retro-term`.
-
-_Default: False_
-
-### `--random-bold=N` _integer_
-
-Make characters bold by a random chanse of 1 in N. Making this `0` will _not_ turn off bold characters completely.
-
-_Default: 8_
-
-### `--no-bold-characters` _boolean_
-
-Turn off all use of bold characters.
-
-_Default: False_
-
-### `--tv-intro` _boolean_
-
-This skips a step when the program starts, and it will look more like an old crt television warming up. It started out a a bug, but now I kinda like it, so I made it an optional extra.
-
-_Default: False_
-
-### `--sparse-columns | --very-sparse-columns` _boolean_
-
-This will skip every other / or third column, to make it look a little lighter. Works well on bigger screens. Plus it speed up things a bit.
-
-_Default: False_
-
-### `--*-(abs|rel)-(min|max)-height=N` _integer_
-
-These values will decide how long a string of characters or spaces can be. Absolute minimum height of strings cannot be less than 5, but other than that you can set this to whatever you want. `*-rel-*` means relative to the terminals height. The lowest of these values will then be applied.
-
-_Default: see table above_
-
-### `--include-spaces=N` _integer_
-
-The original matrix code has spaces included in the strings, which I don't think I've seen in other versions. Experimenting with this value will increase the amount it will "sparkle", or set it to 0 to disable spaces entirely.
-
-_Default: 3_
-
-### `--onscreen-letters-timer=N` _integer_
-
-This might be the most important part imo, how long should the characters "stick" in one place? The number represents the maximum amount of times it shows before it is replaced. Randomness is introduced to make it look organic.
-
-_Default: 4_
-
-## Required / Recommended / Tested on
-
-* Made for Linux - might work on Windows/Mac, no guarantees because I don't have access to any of those OS's
-* Best used with [Matrix Code NFI](https://www.dafont.com/matrix-code-nfi.font)
-* Best used with a 16 color terminal
-* Also works fine on monochrome terminals
-* Tested in Python >= 3.7.3
-* Loaded libraries: __curses__ , __time__ , __signal__ , __sys__ , __random__
 
 ## Usage
 
@@ -119,18 +23,104 @@ chmod u+x yapymatrix
 
 To stop the program, use `Ctrl + C`. I am not planning on adding keyboard shortcuts, but who knows what happens in the future.
 
+## Options
+
+Here's the current list of options. This can also be printed by executing `yapymatrix --help`
+
+```
+usage: YAPYMatrix [-h] [-V] [-f FPS] [-b] [-C] [-B] [--tv-intro]
+                  [--include-spaces INCLUDE_SPACES]
+                  [--onscreen-letters-timer ONSCREEN_LETTERS_TIMER]
+                  [--random-bold RANDOM_BOLD] [--sparse-columns]
+                  [--very-sparse-columns]
+                  [--spaces-abs-min-height SPACES_ABS_MIN_HEIGHT]
+                  [--spaces-abs-max-height SPACES_ABS_MAX_HEIGHT]
+                  [--spaces-rel-max-height SPACES_REL_MAX_HEIGHT]
+                  [--strings-abs-max-height STRINGS_ABS_MAX_HEIGHT]
+                  [--strings-abs-min-height STRINGS_ABS_MIN_HEIGHT]
+                  [--strings-rel-max-height STRINGS_REL_MAX_HEIGHT]
+                  [--vertical-cache VERTICAL_CACHE]
+
+YAPYMatrix 0.3.0 (2019-08-16) Highly customizable Matrix Code Emulator written
+in python [https://github.com/elundmark/yapymatrix]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -V, --version         show program's version number and exit
+  -f FPS, --fps FPS     Frames per second, or delay between updates to be
+                        precise. This will be converted to 1 / fps and used as
+                        seconds to sleep between updates. If this is over 60,
+                        sleep will be omitted (Default: 21)
+  -b, --force-black     Color all backgrounds black. Normally your terminals
+                        default color-scheme will be used(Default: False)
+  -C, --no-colors       Do not use any colors. This will speed up things quite
+                        a bit, so think of using this if you are using
+                        something like cool-retro-term (Default: False)
+  -B, --no-bold-characters
+                        Do not use any bold characters (Default: False)
+  --tv-intro            This skips a step when the program starts, and it will
+                        look more like an old crt television warming up. This
+                        started out a a bug, but now I kinda like it, so I
+                        made it an optional extra (Default: False)
+  --include-spaces INCLUDE_SPACES
+                        The original matrix code has spaces included in the
+                        strings, which I don't think I've seen in any other
+                        versions. Experimenting with this value will increase
+                        the amount it will 'sparkle', or set it to 0 to
+                        disable spaces entirely (Default: 3)
+  --onscreen-letters-timer ONSCREEN_LETTERS_TIMER
+                        This might be the most important part imo; how long
+                        should the characters 'stick' in one place? The number
+                        represents the maximum amount of times it shows before
+                        it is replaced. Randomness is also added to make it
+                        look organic (Default: 4)
+  --random-bold RANDOM_BOLD
+                        Make characters bold by a random chanse of 1 in N.
+                        Making this 0 will not turn off bold characters
+                        completely, to do this, use --no-bold-characters
+                        instead (Default: 8)
+  --sparse-columns      This will skip every other column, to make it look a
+                        little lighter. Works best on wide terminals. Plus it
+                        speeds up things a bit (Default: False)
+  --very-sparse-columns
+                        This will skip 2 of 3 column, to make it look a lot
+                        lighter. Works best on wide terminals. Plus it speeds
+                        up things a lot (Default: False)
+  --spaces-abs-min-height SPACES_ABS_MIN_HEIGHT
+                        Minimum height of vertical spaces (Default: 5)
+  --spaces-abs-max-height SPACES_ABS_MAX_HEIGHT
+                        Maximum height of vertical spaces (Default: 35)
+  --spaces-rel-max-height SPACES_REL_MAX_HEIGHT
+                        Maximum height of vertical spaces, relative to the
+                        terminals height (--spaces-abs-max-height will
+                        override this value if it is lower) (Default: 0.8)
+  --strings-abs-max-height STRINGS_ABS_MAX_HEIGHT
+                        Maximum height of vertical strings (Default: 25)
+  --strings-abs-min-height STRINGS_ABS_MIN_HEIGHT
+                        Minimum height of vertical strings. Cannot be lower
+                        than 5 (Default: 5)
+  --strings-rel-max-height STRINGS_REL_MAX_HEIGHT
+                        Maximum height of vertical strings, relative to the
+                        terminals height (--strings-abs-max-height will
+                        override this value if it is lower) (Default: 0.6)
+  --vertical-cache VERTICAL_CACHE
+                        Advanced: Vertical cache. The bigger you set this to,
+                        the more time passes before anything repeats, but it
+                        requires more ram and will require more time to
+                        calculate on startup. You should probably leave this
+                        value alone (Default: 7)
+```
+
 ## Performance
 
-It's not, bad.
+It's not bad, it depends mostly on your terminals size and what you set `--fps` to.
 
-It's not killing my 2015 laptop i5 processor with 4 threads, but it does require a lot of cpu-time, depending of the size and speed.
-
-* Will consume around _25_ MB of ram, `33%` of a modern dual-core cpu, @ `1920` x `1080`
+* Will consume around _25_ MB of ram, `33%` cpu usage on a modern-ish cpu, @ `1920` x `1080`
 * On a normal sized terminal it's more like _14 MB_ and `14%` cpu usage.
 
-This __is__ heavier than the original [cmatrix](https://github.com/abishekvashok/cmatrix).
+This __is__ heavier than the original [cmatrix](https://github.com/abishekvashok/cmatrix). Can't be helped.
 
-I have really tried to make it faster, but I think I have squeezed all the performance I can out of it.
+I have really tried to make it faster, but I think I have squeezed all the performance I can out of it, for now.
 
 ## TODO's
 

@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """
-Name:               YAPYMatrix - Yet Another Python Matrix
-Desc:               Highly customizable Matrix Code Emulator written in python
-Usage:              $ ./yapymatrix [ options ]
-Date:               2019-08-15
-By:                 elundmark@posteo.se
-Support/Bugtracker: https://github.com/elundmark/yapymatrix
-License:            MIT; https://www.opensource.org/licenses/MIT
-Thanks:             Indian Pythonista <https://www.youtube.com/channel/UCkUq-s6z57uJFUFBvZIVTyg>
+YAPYMatrix - Yet Another Python Matrix - A Matrix Code Emulator
+Made with love for the greatest sci-fi movie ever made
+
+A special thanks to Indian Pythonista (https://www.youtube.com/channel/UCkUq-s6z57uJFUFBvZIVTyg)
+Check out his videos on working with the curses module
+
+Also thanks to reddit users for suggestions:
+starcrATI
+
+More like this: https://www.reddit.com/r/matrix
 """
 
+import argparse
 import curses
 from time import sleep
 import signal
@@ -17,143 +20,137 @@ import sys
 import random
 
 app = {
-    "program_title":   "YAPYMatrix",
-    "program_version": "0.2.0",
-    "website_url":     "https://github.com/elundmark/yapymatrix",
+    "name":    "YAPYMatrix",
+    "desc":    "Highly customizable Matrix Code Emulator written in python",
+    "version": "0.3.0",
+    "updated": "2019-08-16",
+    "author":  "elundmark@posteo.se",
+    "source":  "https://github.com/elundmark/yapymatrix",
+    "license": "MIT; https://www.opensource.org/licenses/MIT",
 }
 
-def generate_help(settings):
-    """Show help text"""
-    print(app["program_title"] + " v" + app["program_version"])
-    print("Available options:\n")
-    for k in settings:
-        print("'" + k + "'", "is set to", settings[k])
-    print("\nFor more information visit:\n", app["website_url"])
-
-def parse_arguments(args, o):
-    """Parse user arguments and hardcoded values in the options dictionary"""
-    show_help = False
-    halt_after_parsing = False
-    # Must be sorted first
-    args.sort()
-    for a in args:
-        # Black Background?
-        if a == "--force-black":
-            o["force-black"] = True
-        # Speed option
-        elif a.startswith("--fps="):
-            o["fps"] = float(a.split("--fps=")[1])
-        # Show help text
-        elif a == "--help":
-            show_help = True
-        # Include how many spaces
-        elif a.startswith("--include-spaces="):
-            o["include-spaces"] = int(float(a.split("--include-spaces=")[1]))
-        # Turn off bold characters
-        elif a == "--no-bold-characters":
-            o["no-bold-characters"] = True
-        # No colors
-        elif a == "--no-colors":
-            o["no-colors"] = True
-        # Keep generated letters onscreen for a maximum of N reflows
-        elif a.startswith("--onscreen-letters-timer"):
-            o["onscreen-letters-timer"] = int(float(a.split("--onscreen-letters-timer=")[1]))
-        # Make 1/N by random a BOLD character
-        elif a.startswith("--random-bold"):
-            o["random-bold"] = int(float(a.split("--random-bold=")[1]))
-        # Debug options
-        elif a == "--show-options":
-            halt_after_parsing = True
-        # Abs. max height of generated series of spaces
-        elif a.startswith("--spaces-abs-max-height="):
-            o["spaces-abs-max-height"] = int(float(a.split("--spaces-abs-max-height=")[1]))
-        # Abs. min height of generated series of spaces
-        elif a.startswith("--spaces-abs-min-height="):
-            o["spaces-abs-min-height"] = int(float(a.split("--spaces-abs-min-height=")[1]))
-       # Rel. max height of generated series of spaces
-        elif a.startswith("--spaces-rel-max-height="):
-            o["spaces-rel-max-height"] = float(a.split("--spaces-rel-max-height=")[1])
-        # Skip every other column - looks great on big wide terminals
-        elif a == "--sparse-columns":
-            o["sparse-columns"] = True
-       # Abs. max height of generated series of strings
-        elif a.startswith("--strings-abs-max-height="):
-            o["strings-abs-max-height"] = int(float(a.split("--strings-abs-max-height=")[1]))
-       # Rel. max height of generated series of strings
-        elif a.startswith("--strings-rel-max-height="):
-            o["strings-rel-max-height"] = float(a.split("--strings-rel-max-height=")[1])
-        # TV effect
-        elif a == "--tv-intro":
-            o["tv-intro"] = True
-        # Skip every three columns
-        elif a == "--very-sparse-columns":
-            o["very-sparse-columns"] = True
-        # default
-        else:
-            print("Invalid option:", a)
-            sys.exit(1)
-    if show_help:
-        generate_help(o)
-        sys.exit(0)
-    elif halt_after_parsing:
-        print("$", app["program_title"])
-        print("Arguments:", args)
-        print("Generated options:", o)
-        sys.exit(0)
-    # Set the magic timeout value
-    o["fps"] = 1 / o["fps"] if o["fps"] <= 60 else 0
-    # Override sparse options
-    if o["very-sparse-columns"]:
-        o["sparse-columns"] = False
-    return o
-
-opts = parse_arguments(sys.argv[1:], {
-    "show-options":           False, # BOOL
-    "force-black":            False, # BOOL
-    "no-colors":              False, # BOOL
-    "tv-intro":               False, # BOOL
-    "sparse-columns":         False, # BOOL
-    "very-sparse-columns":    False, # BOOL
-    "spaces-abs-min-height":  5,     # INT
-    "spaces-abs-max-height":  35,    # INT
-    "spaces-rel-max-height":  0.8,   # FLOAT
-    "strings-abs-min-height": 5,     # INT   (Must be >= 5)
-    "strings-abs-max-height": 25,    # INT
-    "strings-rel-max-height": 0.6,   # FLOAT (Set to 0 to disable)
-    "include-spaces":         3,     # INT
-    "no-bold-characters":     False, # BOOL
-    "random-bold":            8,     # INT
-    "onscreen-letters-timer": 4,     # INT
-    "fps":                    21,    # INT   (60+ will skip sleep delay)
-})
+argparser = argparse.ArgumentParser(
+    prog=app["name"],
+    description=app["name"] + " " + app["version"] + " (" + app["updated"] + ") " +
+    app["desc"] + " [" + app["source"] + "]",
+    allow_abbrev=False
+)
+argparser.add_argument("-V", "--version", action="version", version="%(prog)s " + app["version"])
+argparser.add_argument(
+    "-f", "--fps", type=float, default=21,
+    help="Frames per second, or delay between updates to be precise. " +
+    "This will be converted to 1 / fps and used as seconds to sleep " +
+    "between updates. If this is over 60, sleep will be omitted (Default: %(default)s)"
+)
+argparser.add_argument(
+    "-b", "--force-black", action="store_true",
+    help="Color all backgrounds black. Normally your terminals default color-scheme will be used" +
+    "(Default: %(default)s)"
+)
+argparser.add_argument(
+    "-C", "--no-colors", action="store_true",
+    help="Do not use any colors. This will speed up things quite a bit, so think of using this " +
+    "if you are using something like cool-retro-term (Default: %(default)s)"
+)
+argparser.add_argument(
+    "-B", "--no-bold-characters", action="store_true",
+    help="Do not use any bold characters (Default: %(default)s)"
+)
+argparser.add_argument(
+    "--tv-intro", action="store_true",
+    help="This skips a step when the program starts, and it will " +
+    "look more like an old crt television warming up. This started out a a bug, " +
+    "but now I kinda like it, so I made it an optional extra (Default: %(default)s)"
+)
+argparser.add_argument(
+    "--include-spaces", type=int, default=3,
+    help="The original matrix code has spaces included in the strings, which I don't " +
+    "think I've seen in any other versions. Experimenting with this value will increase " +
+    "the amount it will 'sparkle', or set it to 0 to disable spaces entirely " +
+    "(Default: %(default)s)"
+)
+argparser.add_argument(
+    "--onscreen-letters-timer", type=int, default=4,
+    help="This might be the most important part imo; how long should the characters 'stick' " +
+    "in one place? The number represents the maximum amount of times it shows before it is " +
+    "replaced. Randomness is also added to make it look organic (Default: %(default)s)"
+)
+argparser.add_argument(
+    "--random-bold", type=int, default=8,
+    help="Make characters bold by a random chanse of 1 in N. Making this 0 will not turn off " +
+    "bold characters completely, to do this, use --no-bold-characters instead " +
+    "(Default: %(default)s)"
+)
+argparser.add_argument(
+    "--sparse-columns", action="store_true",
+    help="This will skip every other column, to make it look a little lighter. " +
+    "Works best on wide terminals. Plus it speeds up things a bit (Default: %(default)s)"
+)
+argparser.add_argument(
+    "--very-sparse-columns", action="store_true",
+    help="This will skip 2 of 3 column, to make it look a lot lighter. " +
+    "Works best on wide terminals. Plus it speeds up things a lot (Default: %(default)s)"
+)
+argparser.add_argument(
+    "--spaces-abs-min-height", type=int, default=5,
+    help="Minimum height of vertical spaces (Default: %(default)s)"
+)
+argparser.add_argument(
+    "--spaces-abs-max-height", type=int, default=35,
+    help="Maximum height of vertical spaces (Default: %(default)s)"
+)
+argparser.add_argument(
+    "--spaces-rel-max-height", type=float, default=0.8,
+    help="Maximum height of vertical spaces, relative to the terminals height " +
+    "(--spaces-abs-max-height will override this value if it is lower) " +
+    "(Default: %(default)s)"
+)
+argparser.add_argument(
+    "--strings-abs-max-height", type=int, default=25,
+    help="Maximum height of vertical strings (Default: %(default)s)"
+)
+argparser.add_argument(
+    "--strings-abs-min-height", type=int, default=5,
+    help="Minimum height of vertical strings. Cannot be lower than 5 " +
+    "(Default: %(default)s)"
+)
+argparser.add_argument(
+    "--strings-rel-max-height", type=float, default=0.6,
+    help="Maximum height of vertical strings, relative to the terminals height " +
+    "(--strings-abs-max-height will override this value if it is lower) " +
+    "(Default: %(default)s)"
+)
+# Note: Even at just 2 the cache recycle is very hard to dissern
+argparser.add_argument(
+    "--vertical-cache", type=int, default=7,
+    help="Advanced: Vertical cache. The bigger you set this to, the more time passes " +
+    "before anything repeats, but it requires more ram and will require more time " +
+    "to calculate on startup. You should probably leave this value alone (Default: %(default)s)"
+)
+opts = argparser.parse_args()
+fps = 1 / opts.fps if opts.fps <= 60 else 0
 
 # set terminal title
+# shows the programs name in the terminals titlebar
 app["py_dot_version"] = float(sys.version.split()[0][:3])
 if app["py_dot_version"] >= 3.3:
-    print('\33]0;' + app["program_title"] + '\a', end='', flush=True)
+    # newer versions
+    print('\33]0;' + app["name"] + '\a', end='', flush=True)
 else:
-    print('\33]0;' + app["program_title"] + '\a', end='')
+    # older - 3.0+ is of course assumed since this is written in python3
+    print('\33]0;' + app["name"] + '\a', end='')
     sys.stdout.flush()
 
-# Vertical Cache
-# The bigger value this is, the longer time passes between
-# the cached letters repeats, but it requires more ram
-# and will require more time to calculate on startup
-# Note: Even at only 2 the cache recycle is very hard to dissern
-# Max recommended 25
-# Min recommended 2
-# Default         7
-opts["vertical_cache_int"] = 7
-
 def main(term):
-    """main function - this is inside a try-except and will reset the terminal on endwin()"""
+    """main function - this is ment to be passed into curses.wrapper"""
     # hide cursor
     curses.curs_set(0)
     # leave cursor where it is on update
     term.leaveok(1)
     # clear (any) previous paints
+    # so we can call main(term) when user resizes the terminal
     term.clear()
-    # Use default colors
+    # Use default colors and not black bkg and white fg
     curses.use_default_colors()
     # get the properties of the term
     (height, width) = term.getmaxyx()
@@ -161,12 +158,13 @@ def main(term):
     debug = list()
 
     # Setup colors
-    opts["use-colors"] = False
-    if not opts["no-colors"] and curses.has_colors():
-        opts["use-colors"] = True
+    use_colors = False
+    if not opts.no_colors and curses.has_colors():
+        # user want color and the terminal seems to have them
+        use_colors = True
 
-    if opts["use-colors"]:
-        if opts["force-black"]:
+    if use_colors:
+        if opts.force_black:
             # Black bkg
             curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
             curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
@@ -176,7 +174,7 @@ def main(term):
             curses.init_pair(2, curses.COLOR_WHITE, -1)
         clr_1 = curses.color_pair(1)
         clr_2 = curses.color_pair(2)
-        if opts["force-black"]:
+        if opts.force_black:
             # Set window bkg-color
             curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK)
             term.bkgd(curses.color_pair(3))
@@ -185,10 +183,13 @@ def main(term):
     def signal_handler(sig, frame=None, msg=None):
         """do this instead of traceback on ctrl+c"""
         term.clear()
+        # reset to defaults
         curses.echo()
         curses.nocbreak()
         term.keypad(False)
+        # close curses window
         curses.endwin()
+        # log to terminal?
         if msg is not None:
             import pprint
             pp = pprint.PrettyPrinter(indent=4)
@@ -235,24 +236,27 @@ def main(term):
         # this char is in the range but is not in the font
         if chars[i] == "`":
             chars[i] = "p"
-    if isinstance(opts["include-spaces"], int):
-        opts["include-spaces"] = max(0, opts["include-spaces"])
-        for i in range(0, opts["include-spaces"]):
+    if isinstance(opts.include_spaces, int):
+        # how many spaces to include in the characters strings
+        opts.include_spaces = max(0, opts.include_spaces)
+        for i in range(0, opts.include_spaces):
             chars.append(" ")
 
     def get_rand_chars(size):
         """Generate a random copy of chars"""
-        chars_copy = list()
-        while len(chars_copy) < size:
-            chars_copy += chars[:]
-        random.shuffle(chars_copy)
-        return chars_copy
+        l = list()
+        while len(l) < size:
+            l += chars[:]
+        # better shuffle the entire thing afterwards
+        # rather than using l += random.sample(chars, len(chars))
+        random.shuffle(l)
+        return l
 
     # Pre-calculating random stuff will save tons of cpu time
-    rand_chars = get_rand_chars(width * height * opts["vertical_cache_int"])
+    rand_chars = get_rand_chars(width * height * max(1, opts.vertical_cache))
     rand_chars_len = len(rand_chars)
     rand_char_i = rand_chars_len - 1
-    max_prev_i = opts["onscreen-letters-timer"]
+    max_prev_i = opts.onscreen_letters_timer
     rand_prev_ints = [ random.randint(0, max_prev_i + 1) for tmp in range(0, height) ]
     rand_prev_len = len(rand_prev_ints)
     rand_prev_i = 0
@@ -260,52 +264,56 @@ def main(term):
     def gen_rand_string_column(h):
         """Generate a column of letters"""
         # This value must always be a minimum of 5
-        min_height = max(5, opts["strings-abs-min-height"])
-        if opts["strings-rel-max-height"] > 0:
+        min_height = max(5, opts.strings_abs_min_height)
+        if opts.strings_rel_max_height > 0:
             max_height = min(
-                opts["strings-abs-max-height"],
-                int(h * opts["strings-rel-max-height"]),
+                # highest value is the smallest of these two
+                opts.strings_abs_max_height,
+                int(h * opts.strings_rel_max_height),
             )
         else:
-            max_height = opts["strings-abs-max-height"]
+            max_height = opts.strings_abs_max_height
         if max_height < min_height:
+            # max cannot be lower than min
             max_height = min_height
         n = random.randint(min_height, max_height)
         l = list()
-        bold_int = curses.A_BOLD if not opts["no-bold-characters"] else 0
+        bold_int = curses.A_BOLD if not opts.no_bold_characters else 0
         for i in range(0, n):
             if i == n - 1:
                 # last letter, dimmed
-                t = (2, (clr_1 | curses.A_DIM) if opts["use-colors"] else None)
+                t = (2, (clr_1 | curses.A_DIM) if use_colors else None)
             elif i == n - 2:
                 # next-to-last letter, dimmed and bold
-                t = (2, (clr_1 | curses.A_DIM | bold_int) if opts["use-colors"] else None)
+                t = (2, (clr_1 | curses.A_DIM | bold_int) if use_colors else None)
             elif i == 0:
                 # tracer - last letter
-                t = (0, (clr_2 | bold_int) if opts["use-colors"] else None)
+                t = (0, (clr_2 | bold_int) if use_colors else None)
             elif i == 1:
                 # second letter is always bold
-                t = (0, (clr_1 | bold_int) if opts["use-colors"] else None)
+                t = (0, (clr_1 | bold_int) if use_colors else None)
             else:
                 # random bold - but never for the last char
-                if random.randint(0, opts["random-bold"]) == 0 and i != n - 1:
-                    t = (1, (clr_1 | bold_int) if opts["use-colors"] else None)
+                if random.randint(0, opts.random_bold) == 0 and i != n - 1:
+                    t = (1, (clr_1 | bold_int) if use_colors else None)
                 else:
-                    t = (1, clr_1 if opts["use-colors"] else None)
+                    t = (1, clr_1 if use_colors else None)
             l.append( t )
         return l
 
     def gen_rand_spaces_column(h):
         """Generate a column of spaces"""
-        min_height = opts["spaces-abs-min-height"]
-        if opts["spaces-rel-max-height"] > 0:
+        min_height = opts.spaces_abs_min_height
+        if opts.spaces_rel_max_height > 0:
             max_height = min(
-                opts["spaces-abs-max-height"],
-                int(h * opts["spaces-rel-max-height"]),
+                # highest value is the smallest of these two
+                opts.spaces_abs_max_height,
+                int(h * opts.spaces_rel_max_height),
             )
         else:
-            max_height = opts["spaces-abs-max-height"]
+            max_height = opts.spaces_abs_max_height
         if max_height < min_height:
+            # max cannot be lower than min
             max_height = min_height
         n = random.randint(min_height, max_height)
         l = [ (-1, None) for i in range(0, n) ]
@@ -315,12 +323,16 @@ def main(term):
     matrix = [ [] for tmp in range(0, width) ]
 
     for x in range(0, width):
-        while len(matrix[x]) < height * opts["vertical_cache_int"]:
+        # size of the cache
+        while len(matrix[x]) < height * max(1, opts.vertical_cache):
+            # generate string objects
             rand_strings = gen_rand_string_column(height)
+            # generate space objects
             rand_spaces = gen_rand_spaces_column(height)
-            if opts["sparse-columns"]:
+            if opts.sparse_columns:
+                # skip every other column
                 if x % 2 == 0:
-                    if opts["tv-intro"]:
+                    if opts.tv_intro:
                         matrix[x] += rand_strings
                         matrix[x] += rand_spaces
                     else:
@@ -328,9 +340,10 @@ def main(term):
                         matrix[x] += rand_strings
                 else:
                     matrix[x] += rand_spaces
-            elif opts["very-sparse-columns"]:
+            elif opts.very_sparse_columns:
+                # skip 2of 3 columns
                 if x % 3 == 0:
-                    if opts["tv-intro"]:
+                    if opts.tv_intro:
                         matrix[x] += rand_strings
                         matrix[x] += rand_spaces
                     else:
@@ -339,7 +352,8 @@ def main(term):
                 else:
                     matrix[x] += rand_spaces
             else:
-                if opts["tv-intro"]:
+                # normal mode, all columns are painted
+                if opts.tv_intro:
                     matrix[x] += rand_strings
                     matrix[x] += rand_spaces
                 else:
@@ -350,7 +364,7 @@ def main(term):
     prev = [ { "pos": 0, "size": len(tmp), "prev": [""]*height } for tmp in matrix ]
     last_x = width - 1
     last_y = height - 1
-    # This is to make the rain fall from the top and not explode on screen
+    # This help the rain fall from the top and not explode on screen
     initial_whitespace_skip = (width * height) - 1
 
     while True:
@@ -362,6 +376,7 @@ def main(term):
 
         x_pos = 0
 
+        # loop by rows
         while x_pos < width:
 
             get_prev_int = rand_prev_ints[rand_prev_i]
@@ -370,6 +385,7 @@ def main(term):
                 rand_prev_i = 0
             y_pos = 0
 
+            # loop by columns
             while y_pos < height:
 
                 # bottom right corner can not be written to
@@ -377,36 +393,45 @@ def main(term):
                     y_pos += 1
                     continue
 
+                # type of object (type, color)
                 cell = matrix[x_pos][prev[x_pos]["pos"] - y_pos]
 
                 if cell[0] >= 0:
+                    # string object
                     letter = ""
+                    # sticky or not
                     if get_prev_int != max_prev_i and y_pos < last_y:
                         letter = prev[x_pos]["prev"][y_pos]
                         if letter == " ":
                             letter = ""
 
                     if letter == "":
+                        # randomize
                         letter = rand_chars[rand_char_i]
                         rand_char_i -= 1
                         if rand_char_i < 0:
                             rand_char_i = rand_chars_len - 1
                 else:
-                    # space
+                    # space object
                     letter = " "
 
                 if cell[1] is None or letter == " ":
+                    # space, so skip styling
                     term.addch(y_pos, x_pos, letter)
                 else:
+                    # character, needs styling
                     term.attron(cell[1])
                     term.addch(y_pos, x_pos, letter)
                     term.attroff(cell[1])
 
+                # dont't save spaces as sticky characters
                 if get_prev_int != max_prev_i and letter != " ":
                     prev[x_pos]["prev"][y_pos] = letter
                 else:
                     prev[x_pos]["prev"][y_pos] = ""
 
+                # treat the first "screen" differently
+                # to make the rain fall from the sky properly
                 if initial_whitespace_skip != 0 and (prev[x_pos]["pos"] - y_pos) <= 0:
                     initial_whitespace_skip -= 1
                     break
@@ -424,8 +449,11 @@ def main(term):
 
             x_pos += 1
 
+        # Now we can paint the entire screen
         term.refresh()
-        if opts["fps"] > 0:
-            sleep(opts["fps"])
+        if fps > 0:
+            # delay
+            sleep(fps)
 
+# init
 curses.wrapper(main)
