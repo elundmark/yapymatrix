@@ -101,8 +101,7 @@ _Default: 4_
 
 ## Required / Recommended / Tested on
 
-* Made for Linux - might work on Windows/Mac, no guarantees because I don't have access to any such machines
-* Will consume around _25_ MB of ram, `33%` of a modern dual-core cpu, @ `1920` x `1080`
+* Made for Linux - might work on Windows/Mac, no guarantees because I don't have access to any of those OS's
 * Best used with [Matrix Code NFI](https://www.dafont.com/matrix-code-nfi.font)
 * Best used with a 16 color terminal
 * Also works fine on monochrome terminals
@@ -124,7 +123,12 @@ To stop the program, use `Ctrl + C`. I am not planning on adding keyboard shortc
 
 It's not, bad.
 
-It's not killing my 2015 laptop i5 processor with 4 threads, but it does require around 20-40% of cpu-time, depending of the size and speed. This __is__ heavier than the original [cmatrix](https://github.com/abishekvashok/cmatrix).
+It's not killing my 2015 laptop i5 processor with 4 threads, but it does require a lot of cpu-time, depending of the size and speed.
+
+* Will consume around _25_ MB of ram, `33%` of a modern dual-core cpu, @ `1920` x `1080`
+* On a normal sized terminal it's more like _14 MB_ and `14%` cpu usage.
+
+This __is__ heavier than the original [cmatrix](https://github.com/abishekvashok/cmatrix).
 
 I have really tried to make it faster, but I think I have squeezed all the performance I can out of it.
 
@@ -136,4 +140,4 @@ I have really tried to make it faster, but I think I have squeezed all the perfo
 
 ## Also
 
-This is my first ever python script, so be kind when commenting! Writing this I've only been writing python for a week.
+This is my first ever python script, so be kind when commenting! At the time I'm writing this I've only been exposed to python for a week.
