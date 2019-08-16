@@ -6,11 +6,11 @@
 
 ## Why
 
-Well, first of all, [The Matrix](https://www.imdb.com/title/tt0133093/) is the best Sci-Fi movie ever, and the green code rain alone inspired me like few other things ever have.
+Well, first of all, [The Matrix](https://www.imdb.com/title/tt0133093/) is the best Sci-Fi movie ever made, and the green code rain alone inspired me like few other things ever have.
 
 Yes, it's yet another matrix code generator. [Cmatrix](https://github.com/abishekvashok/cmatrix) is one of my favorite programs, but after a few days learning Python I thought to myself, __"Hey I could do this myself, maybe better, the right way"__. And I think I did okey.
 
-I've gone back to the source material, and tried to really figure out how to make it look like the original. The beautiful thing is, if you don't agree with the result, you can change it to your own liking! :-)
+I've gone back to the source material, and tried to really figure out how to make it look like the original. The beautiful thing is, if you disagree with the result, you can change it to your own liking! :-)
 
 ## Usage
 
@@ -21,7 +21,7 @@ chmod u+x yapymatrix
 ./yapymatrix [ options ]
 ```
 
-To stop the program, use `Ctrl + C`. I am not planning on adding keyboard shortcuts, but who knows what happens in the future.
+To stop the program, use `Ctrl + C`. I am not planning on adding any keyboard shortcuts, but who knows what happens in the future.
 
 ## Options
 
@@ -52,7 +52,7 @@ optional arguments:
                         seconds to sleep between updates. If this is over 60,
                         sleep will be omitted (Default: 21)
   -b, --force-black     Color all backgrounds black. Normally your terminals
-                        default color-scheme will be used(Default: False)
+                        default color-scheme will be used (Default: False)
   -C, --no-colors       Do not use any colors. This will speed up things quite
                         a bit, so think of using this if you are using
                         something like cool-retro-term (Default: False)
