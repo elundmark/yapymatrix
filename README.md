@@ -110,6 +110,17 @@ optional arguments:
                         value alone (Default: 7)
 ```
 
+## Required / Recommended / Tested on
+
+* Made mainly for Linux - might work on Mac, no guarantees because I don't have access to one
+* Will consume around _25_ MB of ram, `33%` of a modern dual-core cpu, @ `1920` x `1080`
+* ~~Best used with~~ [Matrix Code NFI](https://www.dafont.com/matrix-code-nfi.font)
+    - There seems to be an issue with bold characters and this font, atleast for me.
+* Best used with a 16 color terminal
+* Also works fine on monochrome terminals
+* Tested in Python >= 3.7.3
+* Loaded libraries: __argparse__ , __curses__ , __time__ , __signal__ , __sys__ , __random__
+
 ## Performance
 
 It's not bad, it depends mostly on your terminals size and what you set `--fps` to.
