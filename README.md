@@ -28,11 +28,10 @@ To stop the program, use `Ctrl + C`. I am not planning on adding any keyboard sh
 Here's the current list of options. This can also be printed by executing `yapymatrix --help`
 
 ```
-usage: YAPYMatrix [-h] [-V] [-f FPS] [-b] [-C] [-B] [--tv-intro]
+usage: YAPYMatrix [-h] [-V] [-f FPS] [-b] [-C] [-B] [-l] [-L] [-t]
                   [--include-spaces INCLUDE_SPACES]
                   [--onscreen-letters-timer ONSCREEN_LETTERS_TIMER]
-                  [--random-bold RANDOM_BOLD] [--sparse-columns]
-                  [--very-sparse-columns]
+                  [--random-bold RANDOM_BOLD]
                   [--spaces-abs-min-height SPACES_ABS_MIN_HEIGHT]
                   [--spaces-abs-max-height SPACES_ABS_MAX_HEIGHT]
                   [--spaces-rel-max-height SPACES_REL_MAX_HEIGHT]
@@ -58,7 +57,14 @@ optional arguments:
                         something like cool-retro-term (Default: False)
   -B, --no-bold-characters
                         Do not use any bold characters (Default: False)
-  --tv-intro            This skips a step when the program starts, and it will
+  -l, --sparse-columns  This will skip every other column, to make it look a
+                        little lighter. Works best on wide terminals. Plus it
+                        speeds up things a bit (Default: False)
+  -L, --very-sparse-columns
+                        This will skip 2 of 3 column, to make it look a lot
+                        lighter. Works best on wide terminals. Plus it speeds
+                        up things a lot (Default: False)
+  -t, --tv-intro        This skips a step when the program starts, and it will
                         look more like an old crt television warming up. This
                         started out a a bug, but now I kinda like it, so I
                         made it an optional extra (Default: False)
@@ -79,13 +85,6 @@ optional arguments:
                         Making this 0 will not turn off bold characters
                         completely, to do this, use --no-bold-characters
                         instead (Default: 8)
-  --sparse-columns      This will skip every other column, to make it look a
-                        little lighter. Works best on wide terminals. Plus it
-                        speeds up things a bit (Default: False)
-  --very-sparse-columns
-                        This will skip 2 of 3 column, to make it look a lot
-                        lighter. Works best on wide terminals. Plus it speeds
-                        up things a lot (Default: False)
   --spaces-abs-min-height SPACES_ABS_MIN_HEIGHT
                         Minimum height of vertical spaces (Default: 5)
   --spaces-abs-max-height SPACES_ABS_MAX_HEIGHT

@@ -57,7 +57,17 @@ argparser.add_argument(
     help="Do not use any bold characters (Default: %(default)s)"
 )
 argparser.add_argument(
-    "--tv-intro", action="store_true",
+    "-l", "--sparse-columns", action="store_true",
+    help="This will skip every other column, to make it look a little lighter. " +
+    "Works best on wide terminals. Plus it speeds up things a bit (Default: %(default)s)"
+)
+argparser.add_argument(
+    "-L", "--very-sparse-columns", action="store_true",
+    help="This will skip 2 of 3 column, to make it look a lot lighter. " +
+    "Works best on wide terminals. Plus it speeds up things a lot (Default: %(default)s)"
+)
+argparser.add_argument(
+    "-t", "--tv-intro", action="store_true",
     help="This skips a step when the program starts, and it will " +
     "look more like an old crt television warming up. This started out a a bug, " +
     "but now I kinda like it, so I made it an optional extra (Default: %(default)s)"
@@ -80,16 +90,6 @@ argparser.add_argument(
     help="Make characters bold by a random chanse of 1 in N. Making this 0 will not turn off " +
     "bold characters completely, to do this, use --no-bold-characters instead " +
     "(Default: %(default)s)"
-)
-argparser.add_argument(
-    "--sparse-columns", action="store_true",
-    help="This will skip every other column, to make it look a little lighter. " +
-    "Works best on wide terminals. Plus it speeds up things a bit (Default: %(default)s)"
-)
-argparser.add_argument(
-    "--very-sparse-columns", action="store_true",
-    help="This will skip 2 of 3 column, to make it look a lot lighter. " +
-    "Works best on wide terminals. Plus it speeds up things a lot (Default: %(default)s)"
 )
 argparser.add_argument(
     "--spaces-abs-min-height", type=int, default=5,
@@ -128,7 +128,7 @@ argparser.add_argument(
     "to calculate on startup. You should probably leave this value alone (Default: %(default)s)"
 )
 opts = argparser.parse_args()
-fps = 1 / opts.fps if opts.fps <= 60 else 0
+fps = 1 / opts.fps if opts.fps > 0 and opts.fps <= 60 else 0
 
 # set terminal title
 # shows the programs name in the terminals titlebar
@@ -253,7 +253,9 @@ def main(term):
         return l
 
     # Pre-calculating random stuff will save tons of cpu time
-    rand_chars = get_rand_chars(width * height * max(1, opts.vertical_cache))
+    # rand_chars was previously set way too high,
+    # this is a now fixed size of w*h*2
+    rand_chars = get_rand_chars(width * height * 2)
     rand_chars_len = len(rand_chars)
     rand_char_i = rand_chars_len - 1
     max_prev_i = opts.onscreen_letters_timer
@@ -379,6 +381,7 @@ def main(term):
         # loop by rows
         while x_pos < width:
 
+            # 1) I never use len() unless I have too, I'm caching everything instead
             get_prev_int = rand_prev_ints[rand_prev_i]
             rand_prev_i += 1
             if rand_prev_i == rand_prev_len:
@@ -389,6 +392,7 @@ def main(term):
             while y_pos < height:
 
                 # bottom right corner can not be written to
+                # will throw an error if we do
                 if y_pos == last_y and x_pos == last_x:
                     y_pos += 1
                     continue
@@ -416,7 +420,7 @@ def main(term):
                     letter = " "
 
                 if cell[1] is None or letter == " ":
-                    # space, so skip styling
+                    # space, or no styling neede
                     term.addch(y_pos, x_pos, letter)
                 else:
                     # character, needs styling
@@ -430,12 +434,14 @@ def main(term):
                 else:
                     prev[x_pos]["prev"][y_pos] = ""
 
-                # treat the first "screen" differently
-                # to make the rain fall from the sky properly
+                # treat the first "screen" differently by breaking after any new rows
+                # makes the rain fall from the sky properly
                 if initial_whitespace_skip != 0 and (prev[x_pos]["pos"] - y_pos) <= 0:
                     initial_whitespace_skip -= 1
                     break
 
+                # counts down sticky letters
+                # See 1)
                 get_prev_int += 1
                 if get_prev_int == max_prev_i + 1:
                     get_prev_int = 0
@@ -443,6 +449,7 @@ def main(term):
                 y_pos += 1
 
             # "Move" to new line in matrix
+            # See 1)
             prev[x_pos]["pos"] += 1
             if prev[x_pos]["pos"] == prev[x_pos]["size"]:
                 prev[x_pos]["pos"] = 0
@@ -451,8 +458,8 @@ def main(term):
 
         # Now we can paint the entire screen
         term.refresh()
+        # delay - skip if over 60 in which case sleep is illogical
         if fps > 0:
-            # delay
             sleep(fps)
 
 # init
