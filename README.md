@@ -28,10 +28,10 @@ To stop the program, use `Ctrl + C`. I am not planning on adding any keyboard sh
 Here's the current list of options. This can also be printed by executing `yapymatrix --help`
 
 ```
-usage: YAPYMatrix [-h] [-V] [-f FPS] [-b] [-C] [-B] [-l] [-L] [-t]
-                  [--include-spaces INCLUDE_SPACES]
+usage: YAPYMatrix [-h] [-V] [-f FPS] [-s STOP_AFTER] [-b] [-C] [-B] [-l] [-L]
+                  [-t] [--include-spaces INCLUDE_SPACES]
                   [--onscreen-letters-timer ONSCREEN_LETTERS_TIMER]
-                  [--random-bold RANDOM_BOLD]
+                  [--random-bold RANDOM_BOLD] [-R ROGUE_AGENTS]
                   [--spaces-abs-min-height SPACES_ABS_MIN_HEIGHT]
                   [--spaces-abs-max-height SPACES_ABS_MAX_HEIGHT]
                   [--spaces-rel-max-height SPACES_REL_MAX_HEIGHT]
@@ -40,7 +40,7 @@ usage: YAPYMatrix [-h] [-V] [-f FPS] [-b] [-C] [-B] [-l] [-L] [-t]
                   [--strings-rel-max-height STRINGS_REL_MAX_HEIGHT]
                   [--vertical-cache VERTICAL_CACHE]
 
-YAPYMatrix 0.3.0 (2019-08-16) Highly customizable Matrix Code Emulator written
+YAPYMatrix 0.4.0 (2019-08-18) Highly customizable Matrix Code Emulator written
 in python [https://github.com/elundmark/yapymatrix]
 
 optional arguments:
@@ -50,6 +50,9 @@ optional arguments:
                         precise. This will be converted to 1 / fps and used as
                         seconds to sleep between updates. If this is over 60,
                         sleep will be omitted (Default: 21)
+  -s STOP_AFTER, --stop-after STOP_AFTER
+                        Stop program after N loops, useful if you want to have
+                        it on for a while but not forever (Default: 0)
   -b, --force-black     Color all backgrounds black. Normally your terminals
                         default color-scheme will be used (Default: False)
   -C, --no-colors       Do not use any colors. This will speed up things quite
@@ -79,12 +82,15 @@ optional arguments:
                         should the characters 'stick' in one place? The number
                         represents the maximum amount of times it shows before
                         it is replaced. Randomness is also added to make it
-                        look organic (Default: 4)
+                        look organic (Default: 5)
   --random-bold RANDOM_BOLD
                         Make characters bold by a random chanse of 1 in N.
                         Making this 0 will not turn off bold characters
                         completely, to do this, use --no-bold-characters
                         instead (Default: 8)
+  -R ROGUE_AGENTS, --rogue-agents ROGUE_AGENTS
+                        This makes N columns randomly go twice as fast
+                        (Default: 0)
   --spaces-abs-min-height SPACES_ABS_MIN_HEIGHT
                         Minimum height of vertical spaces (Default: 5)
   --spaces-abs-max-height SPACES_ABS_MAX_HEIGHT

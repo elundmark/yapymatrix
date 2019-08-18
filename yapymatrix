@@ -22,8 +22,8 @@ import random
 app = {
     "name":    "YAPYMatrix",
     "desc":    "Highly customizable Matrix Code Emulator written in python",
-    "version": "0.3.0",
-    "updated": "2019-08-16",
+    "version": "0.4.0",
+    "updated": "2019-08-18",
     "author":  "elundmark@posteo.se",
     "source":  "https://github.com/elundmark/yapymatrix",
     "license": "MIT; https://www.opensource.org/licenses/MIT",
@@ -41,6 +41,11 @@ argparser.add_argument(
     help="Frames per second, or delay between updates to be precise. " +
     "This will be converted to 1 / fps and used as seconds to sleep " +
     "between updates. If this is over 60, sleep will be omitted (Default: %(default)s)"
+)
+argparser.add_argument(
+    "-s", "--stop-after", type=int, default=0,
+    help="Stop program after N loops, useful if you want to have it on for a while " +
+    "but not forever (Default: %(default)s)"
 )
 argparser.add_argument(
     "-b", "--force-black", action="store_true",
@@ -80,7 +85,7 @@ argparser.add_argument(
     "(Default: %(default)s)"
 )
 argparser.add_argument(
-    "--onscreen-letters-timer", type=int, default=4,
+    "--onscreen-letters-timer", type=int, default=5,
     help="This might be the most important part imo; how long should the characters 'stick' " +
     "in one place? The number represents the maximum amount of times it shows before it is " +
     "replaced. Randomness is also added to make it look organic (Default: %(default)s)"
@@ -90,6 +95,10 @@ argparser.add_argument(
     help="Make characters bold by a random chanse of 1 in N. Making this 0 will not turn off " +
     "bold characters completely, to do this, use --no-bold-characters instead " +
     "(Default: %(default)s)"
+)
+argparser.add_argument(
+    "-R", "--rogue-agents", type=int, default=0,
+    help="This makes N columns randomly go twice as fast (Default: %(default)s)"
 )
 argparser.add_argument(
     "--spaces-abs-min-height", type=int, default=5,
@@ -120,14 +129,15 @@ argparser.add_argument(
     "(--strings-abs-max-height will override this value if it is lower) " +
     "(Default: %(default)s)"
 )
-# Note: Even at just 2 the cache recycle is very hard to dissern
 argparser.add_argument(
+    # Note: Even at just 2 the cache recycle is very hard to dissern
     "--vertical-cache", type=int, default=7,
     help="Advanced: Vertical cache. The bigger you set this to, the more time passes " +
     "before anything repeats, but it requires more ram and will require more time " +
     "to calculate on startup. You should probably leave this value alone (Default: %(default)s)"
 )
 opts = argparser.parse_args()
+# turn fps into seconds of sleep
 fps = 1 / opts.fps if opts.fps > 0 and opts.fps <= 60 else 0
 
 # set terminal title
@@ -190,14 +200,11 @@ def main(term):
         # close curses window
         curses.endwin()
         # log to terminal?
-        if msg is not None:
+        if msg is not None or debug:
+            print("sig:", sig)
+            print("frame:", frame)
             import pprint
-            pp = pprint.PrettyPrinter(indent=4)
-            pp.pprint([app, sig, msg])
-        elif debug:
-            import pprint
-            pp = pprint.PrettyPrinter(indent=4)
-            pp.pprint([app, sig, debug])
+            pprint.PrettyPrinter(indent=4).pprint([app, debug, msg])
         # We assume nothing went wrong and exit with '0'
         sys.exit(0)
 
@@ -242,6 +249,28 @@ def main(term):
         for i in range(0, opts.include_spaces):
             chars.append(" ")
 
+    def gen_rogue_list(smiths_max, w):
+        # no higher than width
+        smiths_max = min(width, smiths_max)
+        smiths = list()
+        tmp_smiths = [ tmp for tmp in range(0, w) ]
+        tmp_smiths_len = len(tmp_smiths)
+        for i in range(0, tmp_smiths_len):
+            # in some cases we have to filter out some columns
+            if opts.sparse_columns and i % 2 == 0:
+                smiths.append(tmp_smiths[i])
+            elif opts.very_sparse_columns and i % 3 == 0:
+                smiths.append(tmp_smiths[i])
+            elif not opts.sparse_columns and not opts.very_sparse_columns:
+                smiths.append(tmp_smiths[i])
+        # random list of positions
+        random.shuffle(smiths)
+        # slice the list to smiths_max
+        smiths = smiths[:smiths_max]
+        # sort so the loop doesn't miss any
+        smiths.sort()
+        return smiths
+
     def get_rand_chars(size):
         """Generate a random copy of chars"""
         l = list()
@@ -259,9 +288,16 @@ def main(term):
     rand_chars_len = len(rand_chars)
     rand_char_i = rand_chars_len - 1
     max_prev_i = opts.onscreen_letters_timer
-    rand_prev_ints = [ random.randint(0, max_prev_i + 1) for tmp in range(0, height) ]
-    rand_prev_len = len(rand_prev_ints)
+    rand_prev_i_list = [ random.randint(0, max_prev_i + 1) for tmp in range(0, height) ]
+    rand_prev_len = len(rand_prev_i_list)
     rand_prev_i = 0
+    use_rogue_agents = False
+    if opts.rogue_agents > 0:
+        use_rogue_agents = True
+        # as with everything I try to cache things and make is as fast as possible
+        rogue_pos_i_list = gen_rogue_list(opts.rogue_agents, width)
+        rogue_pos_i_list_len = len(rogue_pos_i_list)
+        rogue_i = 0
 
     def gen_rand_string_column(h):
         """Generate a column of letters"""
@@ -280,24 +316,24 @@ def main(term):
             max_height = min_height
         n = random.randint(min_height, max_height)
         l = list()
-        bold_int = curses.A_BOLD if not opts.no_bold_characters else 0
+        bold_i = curses.A_BOLD if not opts.no_bold_characters else 0
         for i in range(0, n):
             if i == n - 1:
                 # last letter, dimmed
                 t = (2, (clr_1 | curses.A_DIM) if use_colors else None)
             elif i == n - 2:
                 # next-to-last letter, dimmed and bold
-                t = (2, (clr_1 | curses.A_DIM | bold_int) if use_colors else None)
+                t = (2, (clr_1 | curses.A_DIM | bold_i) if use_colors else None)
             elif i == 0:
                 # tracer - last letter
-                t = (0, (clr_2 | bold_int) if use_colors else None)
+                t = (0, (clr_2 | bold_i) if use_colors else None)
             elif i == 1:
                 # second letter is always bold
-                t = (0, (clr_1 | bold_int) if use_colors else None)
+                t = (0, (clr_1 | bold_i) if use_colors else None)
             else:
                 # random bold - but never for the last char
                 if random.randint(0, opts.random_bold) == 0 and i != n - 1:
-                    t = (1, (clr_1 | bold_int) if use_colors else None)
+                    t = (1, (clr_1 | bold_i) if use_colors else None)
                 else:
                     t = (1, clr_1 if use_colors else None)
             l.append( t )
@@ -363,18 +399,36 @@ def main(term):
                     matrix[x] += rand_strings
 
     # Keep track of matrix indexes, and previous characters inserted
-    prev = [ { "pos": 0, "size": len(tmp), "prev": [""]*height } for tmp in matrix ]
+    grid = [ { "pos": 0, "size": len(tmp), "prev": [""]*height } for tmp in matrix ]
     last_x = width - 1
     last_y = height - 1
     # This help the rain fall from the top and not explode on screen
-    initial_whitespace_skip = (width * height) - 1
+    whitespace_skip = (width * height) - 1
+    x_pos = 0
+    y_pos = 0
+    run_rows_counter = 0
+    total_runs = 0
 
     while True:
-        # Dont worry - This is a very cheap cpu process
+
+        # check for terminal resize
+        # dont worry - this is a very fast function call
         check_size = term.getmaxyx()
         if check_size[0] != height or check_size[1] != width:
             # the terminal window has changed size
             return main(term)
+
+        # use stop after N feature
+        if opts.stop_after != 0:
+            # count total rows painted
+            run_rows_counter += 1
+            if run_rows_counter >= height:
+                # every "screen" or so
+                run_rows_counter = 0
+                total_runs += 1
+                if opts.stop_after == total_runs:
+                    # user wants to stop now
+                    signal_handler(0, None, None)
 
         x_pos = 0
 
@@ -382,7 +436,7 @@ def main(term):
         while x_pos < width:
 
             # 1) I never use len() unless I have too, I'm caching everything instead
-            get_prev_int = rand_prev_ints[rand_prev_i]
+            get_prev_i = rand_prev_i_list[rand_prev_i]
             rand_prev_i += 1
             if rand_prev_i == rand_prev_len:
                 rand_prev_i = 0
@@ -398,14 +452,14 @@ def main(term):
                     continue
 
                 # type of object (type, color)
-                cell = matrix[x_pos][prev[x_pos]["pos"] - y_pos]
+                cell = matrix[x_pos][grid[x_pos]["pos"] - y_pos]
 
                 if cell[0] >= 0:
                     # string object
                     letter = ""
                     # sticky or not
-                    if get_prev_int != max_prev_i and y_pos < last_y:
-                        letter = prev[x_pos]["prev"][y_pos]
+                    if get_prev_i != max_prev_i and y_pos < last_y:
+                        letter = grid[x_pos]["prev"][y_pos]
                         if letter == " ":
                             letter = ""
 
@@ -429,30 +483,46 @@ def main(term):
                     term.attroff(cell[1])
 
                 # dont't save spaces as sticky characters
-                if get_prev_int != max_prev_i and letter != " ":
-                    prev[x_pos]["prev"][y_pos] = letter
+                if get_prev_i != max_prev_i and letter != " ":
+                    grid[x_pos]["prev"][y_pos] = letter
                 else:
-                    prev[x_pos]["prev"][y_pos] = ""
+                    grid[x_pos]["prev"][y_pos] = ""
 
                 # treat the first "screen" differently by breaking after any new rows
                 # makes the rain fall from the sky properly
-                if initial_whitespace_skip != 0 and (prev[x_pos]["pos"] - y_pos) <= 0:
-                    initial_whitespace_skip -= 1
+                if whitespace_skip != 0 and (grid[x_pos]["pos"] - y_pos) <= 0:
+                    whitespace_skip -= 1
                     break
 
                 # counts down sticky letters
                 # See 1)
-                get_prev_int += 1
-                if get_prev_int == max_prev_i + 1:
-                    get_prev_int = 0
+                get_prev_i += 1
+                if get_prev_i == max_prev_i + 1:
+                    get_prev_i = 0
 
                 y_pos += 1
 
             # "Move" to new line in matrix
+            if use_rogue_agents:
+                # this is a rogue coumn
+                if rogue_pos_i_list[rogue_i] == x_pos:
+                    # move twice as fast for these columns
+                    grid[x_pos]["pos"] += 2
+                    # See 1)
+                    rogue_i += 1
+                    if rogue_i == rogue_pos_i_list_len:
+                        rogue_i = 0
+                # a normal column
+                else:
+                    grid[x_pos]["pos"] += 1
+            # a normal column
+            else:
+                grid[x_pos]["pos"] += 1
+
+            # reset
             # See 1)
-            prev[x_pos]["pos"] += 1
-            if prev[x_pos]["pos"] == prev[x_pos]["size"]:
-                prev[x_pos]["pos"] = 0
+            if grid[x_pos]["pos"] >= grid[x_pos]["size"]:
+                grid[x_pos]["pos"] = 0
 
             x_pos += 1
 
