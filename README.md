@@ -140,7 +140,6 @@ I have really tried to make it faster, but I think I have squeezed all the perfo
 
 ## TODO's
 
-* Add a 1-3 wide random "rogue" column that goes 2x or 3x as fast, as an option. Shouldn't be that hard to implement.
 * Testing testing testing.
 * Spell-checking.
 
