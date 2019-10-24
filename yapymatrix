@@ -18,12 +18,13 @@ from time import sleep
 import signal
 import sys
 import random
+import pprint
 
 app = {
     "name":    "YAPYMatrix",
     "desc":    "Highly customizable Matrix Code Emulator written in python",
-    "version": "0.4.0",
-    "updated": "2019-08-18",
+    "version": "0.4.1",
+    "updated": "2019-10-24",
     "author":  "elundmark@posteo.se",
     "source":  "https://github.com/elundmark/yapymatrix",
     "license": "MIT; https://www.opensource.org/licenses/MIT",
@@ -203,7 +204,6 @@ def main(term):
         if msg is not None or debug:
             print("sig:", sig)
             print("frame:", frame)
-            import pprint
             pprint.PrettyPrinter(indent=4).pprint([app, debug, msg])
         # We assume nothing went wrong and exit with '0'
         sys.exit(0)
@@ -253,7 +253,7 @@ def main(term):
         # no higher than width
         smiths_max = min(width, smiths_max)
         smiths = list()
-        tmp_smiths = [ tmp for tmp in range(0, w) ]
+        tmp_smiths = list(range(0, w))
         tmp_smiths_len = len(tmp_smiths)
         for i in range(0, tmp_smiths_len):
             # in some cases we have to filter out some columns

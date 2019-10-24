@@ -40,7 +40,7 @@ usage: YAPYMatrix [-h] [-V] [-f FPS] [-s STOP_AFTER] [-b] [-C] [-B] [-l] [-L]
                   [--strings-rel-max-height STRINGS_REL_MAX_HEIGHT]
                   [--vertical-cache VERTICAL_CACHE]
 
-YAPYMatrix 0.4.0 (2019-08-18) Highly customizable Matrix Code Emulator written
+YAPYMatrix 0.4.1 (2019-10-24) Highly customizable Matrix Code Emulator written
 in python [https://github.com/elundmark/yapymatrix]
 
 optional arguments:
@@ -116,33 +116,23 @@ optional arguments:
                         value alone (Default: 7)
 ```
 
-## Required / Recommended / Tested on
+## About
 
-* Made mainly for Linux - might work on Mac, no guarantees because I don't have access to one
-* Will consume around _25_ MB of ram, `33%` of a modern dual-core cpu, @ `1920` x `1080`
-* ~~Best used with~~ [Matrix Code NFI](https://www.dafont.com/matrix-code-nfi.font)
-    - There seems to be an issue with bold characters and this font, atleast for me.
-* Best used with a 16 color terminal
-* Also works fine on monochrome terminals
-* Tested in Python >= 3.7.3
-* Loaded libraries: __argparse__ , __curses__ , __time__ , __signal__ , __sys__ , __random__
+* Tested in Python >= `3.7.3`.
+* Best used with a 16 color terminal and a font plus terminal that handles bold characters.
+* Made mainly for Linux - might work on Mac, no guarantees because I don't have access to one.
+* Best used with the [Matrix Code NFI Font](https://www.dafont.com/matrix-code-nfi.font).
+    - Bold characters with this font will not work, but it still looks pretty good.
+* Loaded libraries: `argparse` `curses` `time` `signal` `sys` `random` `pprint`.
 
 ## Performance
 
-It's not bad, it depends mostly on your terminals size and what you set `--fps` to.
-
-* Will consume around _25_ MB of ram, `33%` cpu usage on a modern-ish cpu, @ `1920` x `1080`
-* On a normal sized terminal it's more like _14 MB_ and `14%` cpu usage.
+It's not bad, it depends mostly on your terminal size and what you set `--fps` to, and of course a decent computer. It will consume around 25 MB of ram, 33% of a modern dual-core cpu, on a fullscreen terminal in a 1920 by 1080 pixel workspace. On a normal sized terminal it's more like _14 MB_ and `14%` cpu usage.
 
 This __is__ heavier than the original [cmatrix](https://github.com/abishekvashok/cmatrix). Can't be helped.
 
 I have really tried to make it faster, but I think I have squeezed all the performance I can out of it, for now.
 
-## TODO's
-
-* Testing testing testing.
-* Spell-checking.
-
-## Also
+## Other notes
 
 This is my first ever python script, so be kind when commenting! At the time I'm writing this I've only been exposed to python for a week.
