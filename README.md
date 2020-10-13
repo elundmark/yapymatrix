@@ -1,6 +1,6 @@
 # Yet Another Python Matrix
 
-[![Preview](https://i.imgur.com/mLwIpXP.png)](https://i.imgur.com/LgHiLiA.png)
+[![Preview](https://i.imgur.com/d0m9Na9.png)](https://i.imgur.com/d0m9Na9.png)
 
 [https://giphy.com/gifs/matrix-lrIeTla9JsxCwn9QX1](https://giphy.com/gifs/matrix-lrIeTla9JsxCwn9QX1)
 
@@ -119,15 +119,13 @@ optional arguments:
 ## About
 
 * Tested in Python >= `3.7.3`.
-* Best used with a 16 color terminal and a font plus terminal that handles bold characters.
-* Made mainly for Linux - might work on Mac, no guarantees because I don't have access to one.
+* Best used with a true color terminal that has `draw_bold_text_with_bright_colors` set to `true`.
 * Best used with the [Matrix Code NFI Font](https://www.dafont.com/matrix-code-nfi.font).
     - Bold characters with this font will not work, but it still looks pretty good.
-* Loaded libraries: `argparse` `curses` `time` `signal` `sys` `random` `pprint`.
 
 ## Performance
 
-It's not bad, it depends mostly on your terminal size and what you set `--fps` to, and of course a decent computer. It will consume around 25 MB of ram, 33% of a modern dual-core cpu, on a fullscreen terminal in a 1920 by 1080 pixel workspace. On a normal sized terminal it's more like _14 MB_ and `14%` cpu usage.
+Runs best in a gpu accelerated terminal like __alacritty__. See sample config below.
 
 This __is__ heavier than the original [cmatrix](https://github.com/abishekvashok/cmatrix). Can't be helped.
 
@@ -135,4 +133,98 @@ I have really tried to make it faster, but I think I have squeezed all the perfo
 
 ## Other notes
 
-This is my first ever python script, so be kind when commenting! At the time I'm writing this I've only been exposed to python for a week.
+This was my first ever python script, so be kind when commenting! At the time I'm writing this I've only been exposed to python for a week.
+
+## Sample Configs for Alacritty and i3wm
+
+Install the `Matrix Code NFI` font if you haven't already.
+
+Add this to i3 config:
+
+```
+for_window [class="Alacritty" instance="yapymatrix"] focus, fullscreen toggle
+```
+
+Save this as: `'/home/user/.config/alacritty/alacritty_yapymatrix.yml'`
+
+```yaml
+window:
+  dimensions:
+    columns: 110
+    lines: 28
+  padding:
+    x: 0
+    y: 0
+  decorations: none
+scrolling:
+  history: 0
+font:
+  normal:
+    family: Matrix Code NFI
+    style: Regular
+  bold:
+    family: Matrix Code NFI
+    style: Bold
+  italic:
+    family: Matrix Code NFI
+    style: Italic
+  bold_italic:
+    family: Matrix Code NFI
+    style: Bold Italic
+  size: 30.0
+  offset:
+    x: 6
+    y: 5
+draw_bold_text_with_bright_colors: true
+colors:
+  primary:
+    background: '#000000'
+    foreground: '#EEFFEE'
+  cursor:
+    text: '#000000'
+    cursor: '#8BE9FD'
+  selection:
+    text: '#EEFFEE'
+    background: '#000000'
+  normal:
+    black:   '#000000'
+    red:     '#FF5555'
+    green:   '#00CC00'
+    yellow:  '#F1FA8C'
+    blue:    '#BD93F9'
+    magenta: '#FF79C6'
+    cyan:    '#8BE9FD'
+    white:   '#EEFFEE'
+  bright:
+    black:   '#000000'
+    red:     '#FF5555'
+    green:   '#00CC00'
+    yellow:  '#F1FA8C'
+    blue:    '#BD93F9'
+    magenta: '#FF79C6'
+    cyan:    '#8BE9FD'
+    white:   '#EEFFEE'
+  dim:
+    black:   '#4D4D4D'
+    red:     '#FF6E67'
+    green:   '#008000'
+    yellow:  '#F4F99D'
+    blue:    '#CAA9FA'
+    magenta: '#FF92D0'
+    cyan:    '#9AEDFE'
+    white:   '#EEFFEE'
+background_opacity: 1.0
+selection:
+  save_to_clipboard: false
+key_bindings:
+  - { key: Key0, mods: Control, action: ResetFontSize }
+  - { key: Plus, mods: Control, action: IncreaseFontSize }
+  - { key: Minus, mods: Control, action: DecreaseFontSize }
+
+```
+
+Run it like this:
+
+```
+$ alacritty --config-file /home/user/.config/alacritty/alacritty_yapymatrix.yml --class yapymatrix -e /path/to/yapymatrix -f 18
+```
